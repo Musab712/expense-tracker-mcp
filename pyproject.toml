@@ -1,0 +1,11 @@
+[project]
+name = "mcp-remote-server"
+version = "0.1.0"
+description = "Expense Tracker MCP Server Test with Supabase"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastmcp>=2.12.4",
+    "python-dotenv>=1.0.0",
+    "supabase>=2.21.1",
+]
