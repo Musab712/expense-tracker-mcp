@@ -23,7 +23,7 @@ def init_db():
     
     SQL to run in Supabase SQL Editor:
     
-    CREATE TABLE IF NOT EXISTS expenses_test_test (
+    CREATE TABLE IF NOT EXISTS expenses (
         id BIGSERIAL PRIMARY KEY,
         date TEXT NOT NULL,
         amount REAL NOT NULL,
@@ -34,17 +34,17 @@ def init_db():
     );
     
     -- Optional: Add indexes for better performance
-    CREATE INDEX IF NOT EXISTS idx_expenses_test_date ON expenses_test(date);
-    CREATE INDEX IF NOT EXISTS idx_expenses_test_category ON expenses_test(category);
+    CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(date);
+    CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category);
     """
     try:
         # Test connection by querying the table
-        result = supabase.table("expenses_test").select("id").limit(1).execute()
+        result = supabase.table("expenses").select("id").limit(1).execute()
         print("✓ Successfully connected to Supabase")
         print(f"✓ Database accessible with {len(result.data)} test records")
     except Exception as e:
         print(f"⚠ Database connection warning: {e}")
-        print("Make sure the 'expenses_test' table exists in Supabase")
+        print("Make sure the 'expenses' table exists in Supabase")
 
 # Initialize database connection at module load
 init_db()
@@ -72,7 +72,7 @@ async def add_expense(date: str, amount: float, category: str, subcategory: str 
             "note": note
         }
         
-        result = supabase.table("expenses_test").insert(data).execute()
+        result = supabase.table("expenses").insert(data).execute()
         
         if result.data and len(result.data) > 0:
             expense_id = result.data[0]["id"]
@@ -99,7 +99,7 @@ async def list_expenses(start_date: str, end_date: str):
         end_date: End date in YYYY-MM-DD format
     '''
     try:
-        result = supabase.table("expenses_test")\
+        result = supabase.table("expenses")\
             .select("id, date, amount, category, subcategory, note")\
             .gte("date", start_date)\
             .lte("date", end_date)\
@@ -121,8 +121,8 @@ async def summarize(start_date: str, end_date: str, category: str = None):
         category: Optional category to filter by
     '''
     try:
-        # Fetch all expenses_test in the date range
-        query = supabase.table("expenses_test")\
+        # Fetch all expenses in the date range
+        query = supabase.table("expenses")\
             .select("category, amount")\
             .gte("date", start_date)\
             .lte("date", end_date)
@@ -153,7 +153,7 @@ async def summarize(start_date: str, end_date: str, category: str = None):
         
         return summary_list
     except Exception as e:
-        return {"status": "error", "message": f"Error summarizing expenses_test: {str(e)}"}
+        return {"status": "error", "message": f"Error summarizing expenses: {str(e)}"}
 
 @mcp.tool()
 async def delete_expense(expense_id: int):
@@ -163,7 +163,7 @@ async def delete_expense(expense_id: int):
         expense_id: The ID of the expense to delete
     '''
     try:
-        result = supabase.table("expenses_test")\
+        result = supabase.table("expenses")\
             .delete()\
             .eq("id", expense_id)\
             .execute()
@@ -211,7 +211,7 @@ async def update_expense(
         if not update_data:
             return {"status": "error", "message": "No fields to update"}
         
-        result = supabase.table("expenses_test")\
+        result = supabase.table("expenses")\
             .update(update_data)\
             .eq("id", expense_id)\
             .execute()
